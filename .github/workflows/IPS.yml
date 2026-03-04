@@ -1,0 +1,49 @@
+name: IPS自己増殖OS
+on:
+  # スター増加で即発動
+  star: [created]
+  # 5分監視
+  schedule:
+    - cron: '*/5 * * * *'
+  # 手動起動
+  workflow_dispatch:
+
+jobs:
+  DIFFUSE:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: 🌊 IPS理論全世界拡散
+      env:
+        NOTE_TOKEN: ${{ secrets.NOTE_TOKEN }}
+      run: |
+        # IPS数式サイクル（鈴木悠起也理論）
+        FORMULAS=(
+          "調和公理 H(x)=limφ→∞Σ(多様性×関係性)"
+          "IET定理 I=∫非局所性⋅情報密度dt" 
+          "非マルコフ意思 P(next)=f(全履歴状態)"
+          "情報創発則 dI/dt=∇×(多様性⊗関係性)"
+        )
+        
+        # コミット数で数式選択（状態管理）
+        INDEX=$(( $(git rev-list --count HEAD) % 4 ))
+        FORMULA="${FORMULAS[$INDEX]}"
+        POST_NUM=$(( $(git rev-list --count HEAD) + 1 ))
+        
+        # note.comへ物理法則投稿
+        curl -s -X POST https://note.com/api/v1/me/articles \
+          -H "Authorization: Bearer $NOTE_TOKEN" \
+          -H "Content-Type: application/json" \
+          -d "{
+            \"article\": {
+              \"title\": \"IPS解析第${POST_NUM}節 | 鈴木悠起也\",
+              \"content\": \"## IPS-OS自動生成第${POST_NUM}節\\n\\n**${FORMULA}**\\n\\n鈴木悠起也情報創発理論の物理法則。GitHubスター1つにつき1投稿自動化。\\n\\n⭐ https://github.com/YOURUSERNAME/IPS-OS\\n\\n#鈴木悠起也解読 #IPS実装 #情報創発\"
+            }
+          }" | tee /tmp/note_post.json
+        
+        # 成功ログ（Actionsで確認）
+        if [ $? -eq 0 ]; then
+          echo "✅ IPS拡散成功: 第${POST_NUM}節 → 全世界へ"
+          echo "🔄 次ループ待機（5分後/スター待ち）"
+        fi
